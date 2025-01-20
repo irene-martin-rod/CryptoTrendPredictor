@@ -1,2 +1,2 @@
 # CryptoTrendPredictor
-Predicting temporal tendencies of crytocurrencies using ML
+Predicting temporal tendencies of cryptocurrencies using ML
