@@ -2,23 +2,25 @@
 Predicting temporal tendencies of cryptocurrencies using ML
 
 ## **Proyect structure**
+``` markdown
 /CRYPTOTRENDPREDICTOR/
 |-- /data/
     |-- /raw/
-        |-- crypto_data.db  <-- Here, SQLite db is saved 
+        |-- crypto_data.db  <-- Here, SQL db is saved 
 |-- /scr/
     │-- database.py <-- Script to inilize, create, and save bd
     │-- fetch_data.py <-- Script to get data from API and save them in the bd
     │-- config.py <-- Script to configure bd parameters
+```
 
 
-## **Automating ```python main.py``` Execution**
-To ensure that ```python main.py``` runs automatically at regular intervals without manual intervention, follow the appropriate setup based on your operating system.
+## **Automating ```main.py``` Execution**
+To ensure that ```main.py``` runs automatically at regular intervals without manual intervention, follow the appropriate setup based on your operating system.
 
 ### **Windows: Task Scheduler**
 Windows provides the **Task Scheduler**, which allows you to automate script execution.
 
-Steps to schedule ```python main.py``` in Windows:
+Steps to schedule ```main.py``` in Windows:
 1. **Open Task Scheduler:**
     Press ```Win + R```, type ```taskschd.msc```, and press ```Enter```.
 
@@ -42,16 +44,16 @@ Steps to schedule ```python main.py``` in Windows:
         C:\Users\YOUR_USER\AppData\Local\Programs\Python\PythonXX\python.exe
         ```
         (Replace PythonXX with your Python version.)
-    - Under **"Add arguments"**, enter the path to ```python main.py```:
+    - Under **"Add arguments"**, enter the path to ```main.py```:
         ```sh
         "C:\path\to\your\project\main.py"
         ```
-    - Under **"Start in"**, enter the folder where ```python main.py``` is located.
+    - Under **"Start in"**, enter the folder where ```main.py``` is located.
 
 7. **Finish and save:**
     Confirm and test the scheduled task.
 
-The Task Scheduler will now run ```python main.py``` at the specified intervals.
+The Task Scheduler will now run ```main.py``` at the specified intervals.
 
 ### **Mac: Using ```launchd``` (LaunchAgents)**
 On macOS, you can automate tasks using ```launchd``` by creating a **LaunchAgent**.
@@ -85,13 +87,13 @@ Steps to automate main.py in macOS:
         </dict>
     </plist>
     ```
-    (Replace ```YOUR_USER``` with your actual username and update the ```python main.py``` path accordingly.)
+    (Replace ```YOUR_USER``` with your actual username and update the ```main.py``` path accordingly.)
 
 4. **Load the task into ```launchd```:**
     ```sh
     launchctl load ~/Library/LaunchAgents/com.crypto.fetch.plist
     ```
-    ```launchd``` will now automatically run ```python main.py``` every hour.
+    ```launchd``` will now automatically run ```main.py``` every hour.
 
     To verify if it is running:
     ```sh
@@ -101,7 +103,7 @@ Steps to automate main.py in macOS:
 ### **Linux: Using ```cron``` Jobs:**
 In Linux, we can use ```cron```, a built-in task scheduler.
 
-Steps to automate ```python main.py``` in Linux:
+Steps to automate ```main.py``` in Linux:
 1. **Open Terminal:**
     Press ```Ctrl + Alt + T```.
 
@@ -124,7 +126,7 @@ Steps to automate ```python main.py``` in Linux:
     crontab -l
     ```
 
-Now, "cron``` will automatically run main.py every hour.
+Now, ```cron``` will automatically run main.py every hour.
 
 
 
