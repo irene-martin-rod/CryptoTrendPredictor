@@ -2,7 +2,7 @@
 
 import requests
 from datetime import datetime
-from database import save_price, save_market_cap, save_volume, save_change
+from database import save_to_db
 from config import CRYPTOCURRENCIES  # Importamos la lista de criptos desde config.py
 
 
@@ -13,8 +13,26 @@ API_URL = "https://api.coingecko.com/api/v3/simple/price"
 
 
 
-# Function to get data from the API
 def get_data_api(crypto):
+
+    '''
+    Fetches cryptocurrency data from the CoinGecko API.
+
+    Parameters:
+    - crypto (str): The name of the cryptocurrency to fetch.
+
+    Returns:
+    - dict: A dictionary containing the cryptocurrency data with the following keys:
+        - date (str): The timestamp of the data.
+        - crypto (str): The cryptocurrency name.
+        - price_usd (float): The price of the cryptocurrency in USD.
+        - market_cap (float): The market capitalization value.
+        - volume_24h (float): The 24-hour transaction volume.
+        - change_24h (float): The 24-hour percentage change.
+      Returns None if an error occurs.
+    '''
+    
+
     params = {
         'ids': crypto, 
         'vs_currencies': 'usd',
@@ -23,37 +41,41 @@ def get_data_api(crypto):
         'include_24hr_change': 'true'
     }
     
-    response = requests.get(API_URL, params=params)
-    
     try:
+        response = requests.get(API_URL, params=params)
+        response.raise_for_status()  # Raises an error if the request fails
         data = response.json()
+
         return {
             'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'crypto': crypto,
-            'price_usd': data[crypto]['usd'],
-            'volume_24h': data[crypto]['usd_24h_vol'],
-            'market_cap': data[crypto]['usd_market_cap'],
-            'change_24h': data[crypto]['usd_24h_change']
+            'price_usd': data.get(crypto, {}).get('usd', 0),
+            'market_cap': data.get(crypto, {}).get('usd_market_cap', 0),
+            'volume_24h': data.get(crypto, {}).get('usd_24h_vol', 0),
+            'change_24h': data.get(crypto, {}).get('usd_24h_change', 0)
         }
-    except KeyError:
+    except requests.RequestException as e:
+        print(f"Error fetching data for {crypto}: {e}")
         return None
-    
 
 
 
 
-# Function to fetch and store data in the database
+
 def fetch_and_store_data():
-    for crypto in CRYPTOCURRENCIES:  # Ahora usa la lista de config.py
+    '''
+    Fetches cryptocurrency data for all cryptocurrencies listed in config.py
+    and stores it in the database.
+    '''
+
+    for crypto in CRYPTOCURRENCIES:
+        print(f"Fetching data for {crypto}...")
         data = get_data_api(crypto)
         if data:
-            save_price(data['crypto'], data['date'], data['price_usd'])
-            save_market_cap(data['crypto'], data['date'], data['market_cap'])
-            save_volume(data['crypto'], data['date'], data['volume_24h'])
-            save_change(data['crypto'], data['date'], data['change_24h'])
-    print("Data successfully fetched and stored!")
-
-
+            save_to_db(data)  # Guardamos todo de golpe con la función única
+            print(f"Data for {crypto} saved successfully!")
+        else:
+            print(f"Failed to fetch data for {crypto}.")
 
 
 if __name__ == "__main__":
