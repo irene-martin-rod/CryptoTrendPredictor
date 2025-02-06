@@ -21,6 +21,7 @@ To ensure that ```main.py``` runs automatically at regular intervals without man
 Windows provides the **Task Scheduler**, which allows you to automate script execution.
 
 Steps to schedule ```main.py``` in Windows:
+**CMD**
 1. **Open Task Scheduler:**
     Press ```Win + R```, type ```taskschd.msc```, and press ```Enter```.
 
@@ -38,22 +39,86 @@ Steps to schedule ```main.py``` in Windows:
     Choose the time and interval for execution.
 
 6. **Select the action → Start a program:**
-    - Under "Program/script", enter the path to Python:
+    - Under "Program/script", enter:
 
         ```sh
-        C:\Users\YOUR_USER\AppData\Local\Programs\Python\PythonXX\python.exe
+        C:\Windows\System32\cmd.exe
         ```
-        (Replace PythonXX with your Python version.)
     - Under **"Add arguments"**, enter the path to ```main.py```:
         ```sh
-        "C:\path\to\your\project\main.py"
+        /c "C:\path\to\your\project\venv\Scripts\activate && python C:\path\to\your\project\main.py"
         ```
     - Under **"Start in"**, enter the folder where ```main.py``` is located.
+    ```sh
+    C:\path\to\your\project
+    ```
 
 7. **Finish and save:**
     Confirm and test the scheduled task.
 
 The Task Scheduler will now run ```main.py``` at the specified intervals.
+
+**WSL**
+1. **Open WSL Terminal:**
+
+2. **Edit the crontab file:**
+    ```sh
+    crontab -e
+    ```
+
+3. **Add the following cron job to run main.py every hour:**
+    ```Hourly```
+    ```sh
+    0 * * * * source /mnt/c/Users/YOUR_USER/path/to/venv/Scripts/activate && python /mnt/c/Users/YOUR_USER/path/to/main.py
+    ```
+
+    ```Daily``` <!-- Runs at 03:00 AM -->
+    ```sh
+    0 3 * * * source /mnt/c/Users/YOUR_USER/path/to/venv/Scripts/activate && python /mnt/c/Users/YOUR_USER/path/to/main.py
+    ```
+    (Replace ```YOUR_USER``` with your username and update the script path accordingly.)
+
+4. **Save and exit:**
+    In nano, press ```Ctrl + X```, then ```Y```, and ```Enter```.
+
+5. **Check scheduled jobs:**
+    ```sh
+    crontab -l
+    ```
+
+Possibily, WSL does not execute ```cron``` automatically, but you can configure:
+1. **Open WSL configuration file:**
+    ```sh
+    sudo nano /etc/wsl.conf
+    ```
+
+2. **Add at the end of the file:**
+    ```markdown
+    [boot]
+    command="service cron start"
+    ```
+
+3. **Save and restart the terminal:**
+    ```sh
+    wsl --shutdown
+    ```
+
+- To check if ```cron``` is running:
+    ```sh
+    sudo service cron status
+    ```
+
+- To iniziate ```cron```:
+    ```sh
+    sudo service cron start
+    ```
+
+- To check if ```cron jobs``` are been executed:
+    ```sh
+    grep cron /var/log/syslog
+    ```
+
+
 
 ### **Mac: Using ```launchd``` (LaunchAgents)**
 On macOS, you can automate tasks using ```launchd``` by creating a **LaunchAgent**.
@@ -68,6 +133,7 @@ Steps to automate main.py in macOS:
     ```
 
 3. **Add the following configuration:**
+    ```Hourly ```
     ```xml
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -87,6 +153,33 @@ Steps to automate main.py in macOS:
         </dict>
     </plist>
     ```
+
+    ```Daily ```
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+        <dict>
+            <key>Label</key>
+            <string>com.crypto.fetch</string>
+            <key>ProgramArguments</key>
+            <array>
+                <string>/usr/bin/python3</string>
+                <string>/Users/YOUR_USER/path/to/project/main.py</string>
+            </array>
+            <key>StartCalendarInterval</key>
+            <dict>
+                <key>Hour</key>
+                <integer>3</integer> <!-- Runs at 03:00 AM -->
+                <key>Minute</key>
+                <integer>0</integer>
+            </dict>
+            <key>RunAtLoad</key>
+            <true/>
+        </dict>
+    </plist>
+    ```
+
     (Replace ```YOUR_USER``` with your actual username and update the ```main.py``` path accordingly.)
 
 4. **Load the task into ```launchd```:**
@@ -99,6 +192,8 @@ Steps to automate main.py in macOS:
     ```sh
     launchctl list | grep com.crypto.fetch
     ```
+
+
 
 ### **Linux: Using ```cron``` Jobs:**
 In Linux, we can use ```cron```, a built-in task scheduler.
@@ -113,8 +208,14 @@ Steps to automate ```main.py``` in Linux:
     ```
 
 3. **Add the following cron job to run main.py every hour:**
+    ```Hourly```
     ```sh
-    0 * * * * /usr/bin/python3 /home/YOUR_USER/path/to/project/main.py
+    0 * * * * /bin/bash -c 'source /home/YOUR_USER/path/to/project/venv/bin/activate && python /home/YOUR_USER/path/to/project/main.py'
+    ```
+
+    ```Daily``` <!-- Runs at 03:00 AM -->
+    ```sh
+    0 3 * * * /bin/bash -c 'source /home/YOUR_USER/path/to/project/venv/bin/activate && python /home/YOUR_USER/path/to/project/main.py'
     ```
     (Replace ```YOUR_USER``` with your username and update the script path accordingly.)
 
