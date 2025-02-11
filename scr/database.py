@@ -74,7 +74,8 @@ def init_db():
     ''')
 
     conn.commit()
-    conn.close()
+    return conn, cursor
+    #conn.close()
 
 
 
