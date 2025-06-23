@@ -3,14 +3,28 @@ Predicting temporal tendencies of cryptocurrencies using ML
 
 ## **Proyect structure**
 ``` markdown
-/CRYPTOTRENDPREDICTOR/
-|-- /data/
-    |-- /raw/
-        |-- crypto_data.db  <-- Here, SQL db is saved 
-|-- /scr/
-    │-- database.py <-- Script to inilize, create, and save bd
-    │-- fetch_data.py <-- Script to get data from API and save them in the bd
-    │-- config.py <-- Script to configure bd parameters
+/CryptoTrendPredictor/
+├── .github/workflows # Folder with all actions for GitHub Actions
+|    └── run_main.yml # Script to automatize the data retrieval and data dump to Supabase database
+
+├── data/
+|    └── processed/
+|    └── raw/
+|        ├── crypto_data.db #Local database in SQLite until June
+|        └── db_23062025.csv 
+│ └── crypto_data.db # SQLite database file (local storage)
+
+├── notebooks/
+|    ├── clean_data.ipynb 
+|    └── obtain_data.ipynb #Script to obtain data for the local database
+
+
+├── src/
+|    ├── config.py # Script with configuration parameters (e.g., list of cryptocurrencies)
+|    ├── database.py # Script to initialize, create tables, and save to the database
+|    ├── fetch_data.py # Script to fetch data from the API and save it to the database
+|    ├── main.py # Script used for obtain data automatically
+|    └── migrate_db.py # Script for migrate from SQLite db to a PostgreSQL
 ```
 
 
@@ -230,5 +244,40 @@ Steps to automate ```main.py``` in Linux:
 Now, ```cron``` will automatically run main.py every hour.
 
 
+## Previous Setup
 
+Until June 2025, the data was manually fetched and stored locally in a SQLite database. This required running scripts manually to update the dataset.
+
+---
+
+## Current Setup (since 23rd June 2025)
+
+To automate data fetching, storage, and migration, the project now integrates with **Supabase** for remote PostgreSQL database hosting and uses **GitHub Actions** for scheduling daily data updates.
+
+### Database Migration
+
+- Data from the local SQLite database is migrated to Supabase PostgreSQL.
+- Database schema is synchronized with the remote database.
+
+### Automated Data Fetching and Storage
+
+- A scheduled GitHub Actions workflow runs daily at **12:00 PM CET** (10:00 UTC).
+- The workflow runs `src/main.py` which:
+  - Initializes the database schema if needed.
+  - Fetches the latest cryptocurrency data from the CoinGecko API.
+  - Stores the data in the Supabase PostgreSQL database.
+
+### Environment Configuration
+
+- Sensitive information like database connection URLs are stored in GitHub Secrets as `POSTGRES_URL`.
+- The project uses a `.env` file at the project root for local development.
+
+---
+
+## How to Run Locally
+
+1. Create and configure your `.env` file in the project root with the following:
+
+   ```env
+   POSTGRES_URL=postgresql://username:password@host:port/database
 
