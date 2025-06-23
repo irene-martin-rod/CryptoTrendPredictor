@@ -1,9 +1,13 @@
 name: Run main.py daily
 
 on:
+  # Manual trigger
+  workflow_dispatch:
+
+  # Scheduled trigger: Every day at 10:00 UTC (12:00 in Spain)
   schedule:
-  # Runs every day at 10:00 UTC (12:00 CET)
-    - cron: '0 10 * * *'  
+    - cron: '0 10 * * *'
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
