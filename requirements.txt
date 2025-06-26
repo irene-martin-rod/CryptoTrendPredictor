@@ -12,10 +12,14 @@ dotenv==0.9.9
     # via -r .\requirements.in
 idna==3.10
     # via requests
+joblib==1.5.1
+    # via scikit-learn
 numpy==2.2.5
     # via
     #   -r .\requirements.in
     #   pandas
+    #   scikit-learn
+    #   scipy
 pandas==2.2.3
     # via -r .\requirements.in
 psycopg2==2.9.10
@@ -28,8 +32,14 @@ pytz==2025.2
     # via pandas
 requests==2.32.3
     # via -r .\requirements.in
+scikit-learn==1.7.0
+    # via -r .\requirements.in
+scipy==1.16.0
+    # via scikit-learn
 six==1.17.0
     # via python-dateutil
+threadpoolctl==3.6.0
+    # via scikit-learn
 tzdata==2025.2
     # via pandas
 urllib3==2.4.0
