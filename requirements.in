@@ -4,3 +4,8 @@ requests
 psycopg2
 dotenv
 scikit-learn
+matplotlib
+matplotlib-inline
+seaborn
+ipython
+statsmodels
