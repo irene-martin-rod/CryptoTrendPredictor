@@ -40,7 +40,6 @@ It focuses on two main predictive tasks:
 
 The project aims to combine financial indicators, deep learning architectures, and ML-based classifiers to evaluate different modeling approaches for financial time series.
 
-
         ┌────────────────────────┐
         │   RAW BINANCE DATA     │
         │  (price, volume, cap)  │
