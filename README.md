@@ -10,13 +10,17 @@ Predicting temporal tendencies of cryptocurrencies using ML
 ├── data/
 |    └── processed/
 |    └── raw/
-|        ├── crypto_data.db #Local database in SQLite until June
+|        ├── crypto_data.db # Local database in SQLite until June
 |        └── db_23062025.csv 
 │ └── crypto_data.db # SQLite database file (local storage)
 
 ├── notebooks/
-|    ├── clean_data.ipynb 
-|    └── obtain_data.ipynb #Script to obtain data for the local database
+|    ├── 1-obtain_data.ipynb # Script to obtain data for the local database
+|    ├── 2-create_subset.ipynb # Script to select only data for a bitcoin
+|    ├── 3-clean_data_binance.ipynb # Script to clean data an imput NAs
+|    ├── 4-eda_binance.ipynb
+|    ├── 5-features_binance.ipynb # Script to do advanced feature engineering 
+|    ├── 6-dataset_creation.ipynb # Split train and test datasets   
 
 
 ├── src/
@@ -26,6 +30,139 @@ Predicting temporal tendencies of cryptocurrencies using ML
 |    ├── main.py # Script used for obtain data automatically
 |    └── migrate_db.py # Script for migrate from SQLite db to a PostgreSQL
 ```
+
+## **Overview**  
+**CryptoTrendPredictor** is a modular framework designed to analyze and forecast cryptocurrency market trends using both **time series** and **machine learning** techniques.  
+It focuses on two main predictive tasks:  
+
+1. **Price Forecasting:** Predicting the *future value* of a cryptocurrency (e.g., USD price).  
+2. **Return Forecasting:** Predicting *future returns* or *price direction* (up/down movement).  
+
+The project aims to combine financial indicators, deep learning architectures, and ML-based classifiers to evaluate different modeling approaches for financial time series.
+
+
+        ┌────────────────────────┐
+        │   RAW BINANCE DATA     │
+        │  (price, volume, cap)  │
+        └──────────┬─────────────┘
+                   │
+                   ▼
+        ┌────────────────────────┐
+        │   FEATURE ENGINEERING   │
+        │  make_features()        │
+        │  → adds RSI, MACD, ...  │
+        └──────────┬─────────────┘
+                   │
+                   ▼
+        ┌────────────────────────┐
+        │   binance_features.csv  │
+        └──────────┬─────────────┘
+         ┌─────────┴───────────────┐
+         │                         │
+         ▼                         ▼
+┌────────────────────┐    ┌────────────────────┐
+│ PRICE DATASET      │    │ RETURNS DATASET    │
+│ target_price = t+1 │    │ target_return = t+1│
+│                    │    │ target_class ↑↓    │
+└─────────┬──────────┘    └─────────┬──────────┘
+          │                         │
+          ▼                         ▼
+  ┌───────────────┐         ┌────────────────┐
+  │ train_price   │         │ train_returns  │
+  │ test_price    │         │ test_returns   │
+  └──────┬────────┘         └──────┬─────────┘
+         │                         │
+         ▼                         ▼
+┌─────────────────────┐   ┌──────────────────────────┐
+│ TIME SERIES MODELS  │   │ ML/DL MODELS (XGB, RF...)│
+│ (ARIMA, Prophet...) │   │ Regression / Classification │
+└─────────────────────┘   └──────────────────────────┘
+
+
+## **Data Pipeline**
+
+### **Raw Data**
+Raw historical data is collected from Binance and includes features such as:
+- `date`
+- `price_usd`
+- `volume`
+- `market_cap`
+- `change`
+
+This dataset provides the base for all subsequent feature engineering and modeling tasks.
+
+### **Feature Engineering**
+The preprocessing phase transforms raw data into a feature-rich dataset (`binance_features.csv`) by computing:
+- **Technical indicators** (RSI, MACD, Bollinger Bands, Moving Averages)  
+- **Volatility metrics**  
+- **Lagged features and returns**  
+- **Temporal encodings** (day of week, month, quarter)
+
+This stage prepares the data for both time series forecasting and supervised ML models.
+
+
+### **Dataset Creation and Splitting**
+
+From the feature-enhanced data, two separate datasets are generated based on prediction type:
+
+#### **Price Prediction Dataset**
+Used for models like **ARIMA, Prophet, and LSTM** that focus on forecasting future price values.
+
+```python
+target_price = price_usd.shift(-1)
+```
+
+- Predicts the *next-day price*.
+- Splits the data chronologically into **80% train** and **20% test** sets.
+
+Output files:
+```
+binance_target_price.csv
+binance_train_price.csv
+binance_test_price.csv
+```
+
+#### **Returns Prediction Dataset**
+Used for **machine learning and deep learning** models that predict *future returns* or *trend direction*.
+
+```python
+target_return = returns.shift(-1)
+target_class = (target_return > 0).astype(int)
+```
+
+- Predicts the *next-day return* (continuous) and *trend class* (binary).  
+- Also split temporally (80% / 20%).
+
+Output files:
+```
+binance_target_returns.csv
+binance_train_returns.csv
+binance_test_returns.csv
+```
+
+## **Modeling Approaches**
+
+| Task Type | Model Family | Example Models | Objective |
+|------------|---------------|----------------|------------|
+| **Time Series Forecasting** | Statistical / DL | ARIMA, Prophet, LSTM | Predict future **price values** |
+| **Machine Learning Regression** | Tree-based / Neural | XGBoost, Random Forest, MLP | Predict **next-day returns** |
+| **Classification** | Supervised Learning | Logistic Regression, SVM, LightGBM | Predict **trend direction (up/down)** |
+
+Each model is evaluated using both standard performance metrics (MAE, RMSE, R²) and trading-related measures (accuracy of direction, precision, recall).
+
+## **Data Export**
+
+All generated datasets are automatically saved into the `/data/processed/` directory using the utility function:
+
+```python
+export_dataset(df, path, include_index=False)
+```
+
+This ensures reproducibility and consistent access to processed data for later experimentation.
+
+
+-----------
+
 
 
 ## **Automating ```main.py``` Execution**
