@@ -34,7 +34,8 @@ import ruptures as rpt
 
 def run_random_forest(X_train: pd.DataFrame,
                       X_test: pd.DataFrame,
-                      y_train: pd.Series) -> Tuple[np.ndarray, RandomForestRegressor]:
+                      y_train: pd.Series,
+                      model_params: dict = None) -> Tuple[np.ndarray, RandomForestRegressor]:
     
     '''
     Train a Random Forest regressor with default parameters.
@@ -43,13 +44,17 @@ def run_random_forest(X_train: pd.DataFrame,
         - X_train: a dataframe with features for training
         - X_test: a dataframe with features for evaluation
         - y_train: a dataframe with teh variable to predict
+        - model_params: a dictionary with model parameters
 
     Returns:
         - y_pred: predictions for X_test and 
         - model: the fitted model.
     '''
 
-    model = RandomForestRegressor(random_state=42)
+    if model_params is None:
+        model = RandomForestRegressor(random_state=42)
+    else:
+        model = RandomForestRegressor(random_state=42, **model_params)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     return y_pred, model
@@ -57,7 +62,8 @@ def run_random_forest(X_train: pd.DataFrame,
 
 def run_xgboost(X_train: pd.DataFrame,
                 X_test: pd.DataFrame,
-                y_train: pd.Series) -> Tuple[np.ndarray, XGBRegressor]:
+                y_train: pd.Series,
+                model_params: dict = None) -> Tuple[np.ndarray, XGBRegressor]:
     '''
     Train a Random Forest regressor with default parameters.
     
@@ -71,14 +77,17 @@ def run_xgboost(X_train: pd.DataFrame,
         - model: the fitted model.
     '''
 
-    model = XGBRegressor(random_state=42, n_estimators=200)
+    if model_params is None:
+        model = RandomForestRegressor(random_state=42, n_estimators=200)
+    else:
+        model = RandomForestRegressor(random_state=42, **model_params)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     return y_pred, model
 
 
 # ====================================================
-# 🔹 TIME SERIES MODELS (ARIMA, SARIMA, PROPHET)
+# TIME SERIES MODELS (ARIMA, SARIMA, ARIMAX, SARIMAX, PROPHET)
 # ====================================================
 
 def run_arima(train_series: pd.Series,
@@ -100,6 +109,7 @@ def run_arima(train_series: pd.Series,
     return forecast, fitted
 
 
+
 def run_sarima(train_series: pd.Series,
                test_len: int = 14) -> Tuple[np.ndarray, SARIMAX]:
     '''
@@ -118,6 +128,59 @@ def run_sarima(train_series: pd.Series,
     fitted = model.fit(disp=False)
     forecast = fitted.forecast(steps=test_len)
     return forecast, fitted
+
+
+
+def run_arimax(train_series: pd.Series,
+               exog_train: pd.DataFrame,
+               exog_test: pd.DataFrame,
+               order: tuple = (1,1,1)
+              ) -> Tuple[np.ndarray, SARIMAX]:
+    '''
+    Train an ARIMA model with exogenous variables (ARIMAX).
+
+    Parameters:
+        - train_series: pandas Series with training target
+        - exog_train: DataFrame with exogenous features for training
+        - exog_test: DataFrame with exogenous features for forecasting
+        - order: ARIMA order (p,d,q)
+
+    Returns:
+        - forecast: predicted values array
+        - fitted: fitted ARIMAX model
+    '''
+    model = SARIMAX(train_series, exog=exog_train, order=order)
+    fitted = model.fit(disp=False)
+    forecast = fitted.forecast(steps=len(exog_test), exog=exog_test)
+    return forecast, fitted
+
+
+
+def run_sarimax(train_series: pd.Series,
+                exog_train: pd.DataFrame,
+                exog_test: pd.DataFrame,
+                order: tuple = (1,1,1),
+                seasonal_order: tuple = (1,1,1,7)
+               ) -> Tuple[np.ndarray, SARIMAX]:
+    '''
+    Train a SARIMA model with exogenous variables (SARIMAX).
+
+    Parameters:
+        - train_series: pandas Series with training target
+        - exog_train: DataFrame with exogenous features for training
+        - exog_test: DataFrame with exogenous features for forecasting
+        - order: ARIMA order (p,d,q)
+        - seasonal_order: seasonal order (P,D,Q,s)
+
+    Returns:
+        - forecast: predicted values array
+        - fitted: fitted SARIMAX model
+    """'''
+    model = SARIMAX(train_series, exog=exog_train, order=order, seasonal_order=seasonal_order)
+    fitted = model.fit(disp=False)
+    forecast = fitted.forecast(steps=len(exog_test), exog=exog_test)
+    return forecast, fitted
+
 
 
 def run_prophet(df: pd.DataFrame,
@@ -143,7 +206,7 @@ def run_prophet(df: pd.DataFrame,
 
 
 # ====================================================
-# 🔹 STRUCTURAL BREAK DETECTION (RUPTURES)
+# STRUCTURAL BREAK DETECTION (RUPTURES)
 # ====================================================
 
 def run_ruptures(price_series: pd.Series,
@@ -167,7 +230,7 @@ def run_ruptures(price_series: pd.Series,
 
 
 # ====================================================
-# 🔹 EVALUATION
+# EVALUATION
 # ====================================================
 
 def evaluate_model(y_true: Union[np.ndarray, pd.Series],
@@ -188,12 +251,11 @@ def evaluate_model(y_true: Union[np.ndarray, pd.Series],
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     r2 = r2_score(y_true, y_pred)
 
-    print(f'📊 {model_name} - MAE: {mae:.4f} | RMSE: {rmse:.4f} | R²: {r2:.4f}')
-    return {'model': model_name, 'MAE': mae, 'RMSE': rmse, 'R2': r2}
+    return {'MAE': mae, 'RMSE': rmse, 'R2': r2}
 
 
 # ====================================================
-# 🔹 DEMO USAGE (if run directly)
+# DEMO USAGE (if run directly)
 # ====================================================
 
 if __name__ == '__main__':

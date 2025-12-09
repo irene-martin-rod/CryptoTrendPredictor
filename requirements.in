@@ -9,3 +9,6 @@ matplotlib-inline
 seaborn
 ipython
 statsmodels
+xgboost
+prophet
+ruptures
