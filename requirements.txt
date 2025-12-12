@@ -164,6 +164,8 @@ python-dotenv==1.2.1
     # via dotenv
 pytz==2025.2
     # via pandas
+pyyaml==6.0.3
+    # via -r requirements.in
 realtime==2.25.0
     # via supabase
 requests==2.32.5

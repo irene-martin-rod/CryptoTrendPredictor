@@ -1,0 +1,17 @@
+cryptocurrencies:
+  - bitcoin
+  - ethereum
+  - tether
+  - binancecoin
+  - usd-coin
+  - ripple
+
+columns_to_drop:
+  - id
+  - cryptocurrency_id
+
+input_path: "../data/raw/db_12122025.csv"
+output_folder: "../data/processed/"
+
+fill_missing_dates: true
+include_index: true

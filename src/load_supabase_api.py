@@ -5,16 +5,6 @@ import pandas as pd
 from functools import reduce
 
 def load_table(table_name: str) -> pd.DataFrame:
-    '''
-    Load all records from a Supabase table into a DataFrame.
-    Convert the name to lowercase to avoid case-sensitive errors.
-
-    Parameters:
-        - table-name: name of a spacific table of a Supabase database
-    
-    Returns:
-        - data: a pd.Dataframe with the records.
-    '''
     table_name = table_name.lower()
     response = supabase.table(table_name).select("*").execute()
     data = response.data
@@ -23,35 +13,36 @@ def load_table(table_name: str) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-
-
 def load_all_data() -> pd.DataFrame:
-    '''
-    Load all main tables and combines in a unified dtaframe
-
-    Returns:
-        - unified_df: a pd.DataFrame
-    '''
+    """
+    Load all main tables from Supabase and combine them into a unified dataframe.
+    Returns a dataframe with a standard column 'cryptocurrency_name'.
+    """
     # Load tables
     price = load_table("price")
     market = load_table("market_capitalization")
     volume = load_table("transaction_volume_24h")
     change = load_table("value_change_24h")
-    crypto = load_table("cryptocurrencies")
+    crypto = load_table("cryptocurrencies")  # contains id, name
 
-    # Add the name of the cryptocurrency in each table
+    # Columns to merge on
+    common_cols = ["cryptocurrency_id", "date"]
+
+    # Drop 'id' columns in data tables to avoid duplicates
     for df in [price, market, volume, change]:
-        df.merge(crypto[['id', 'name']], left_on="cryptocurrency_id", right_on="id", 
-                 suffixes=("", "_crypto"))
+        df.drop(columns=["id"], errors='ignore', inplace=True)
 
-    # Merge all Dataframe
+    # Merge all tables
+    from functools import reduce
     dataframes = [price, market, volume, change]
-    common_cols = ["id", "cryptocurrency_id", "date"]
-    unified_df = reduce(lambda left, right: pd.merge(left, right, on=common_cols, how='outer'), 
-                        dataframes)
+    unified_df = reduce(lambda left, right: pd.merge(left, right, on=common_cols, how='outer'), dataframes)
 
-    # Add cryptocurrency name column from criptocurrency_id
-    unified_df = unified_df.merge(crypto[['id', 'name']], left_on="cryptocurrency_id", 
-                                  right_on="id", suffixes=("", "_crypto"))
+    # Merge crypto name at the end
+    unified_df = unified_df.merge(
+        crypto[['id', 'name']],
+        left_on="cryptocurrency_id",
+        right_on="id",
+        how="left"
+    ).drop(columns=["id"]).rename(columns={"name": "cryptocurrency_name"})
 
     return unified_df

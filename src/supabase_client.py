@@ -1,4 +1,4 @@
-# Pipeline to obtain configuration form .env
+# Pipeline to obtain configuration from .env
 
 from supabase import create_client
 import os

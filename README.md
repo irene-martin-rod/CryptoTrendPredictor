@@ -5,30 +5,40 @@ Predicting temporal tendencies of cryptocurrencies using ML
 ``` markdown
 /CryptoTrendPredictor/
 ├── .github/workflows # Folder with all actions for GitHub Actions
-|    └── run_main.yml # Script to automatize the data retrieval and data dump to Supabase database
+|   └── run_main.yml # Script to automatize the data retrieval and data dump to Supabase
+            database
+
+├── config
+|   └── preprocess.yaml 
 
 ├── data/
-|    └── processed/
-|    └── raw/
-|        ├── crypto_data.db # Local database in SQLite until June
-|        └── db_23062025.csv 
-│ └── crypto_data.db # SQLite database file (local storage)
+|   └── processed/
+|   └── raw/
+|   |   ├── crypto_data.db # Local database in SQLite until June
+|   |   └── db_23062025.csv # Raw dataset
 
 ├── notebooks/
-|    ├── 1-obtain_data.ipynb # Script to obtain data for the local database
-|    ├── 2-create_subset.ipynb # Script to select only data for a bitcoin
-|    ├── 3-clean_data_binance.ipynb # Script to clean data an imput NAs
-|    ├── 4-eda_binance.ipynb
-|    ├── 5-features_binance.ipynb # Script to do advanced feature engineering 
-|    ├── 6-dataset_creation.ipynb # Split train and test datasets   
+|   ├── 1-obtain_data.ipynb # Script to obtain data for the local database
+|   ├── 2-create_subset.ipynb # Script to select only data for a bitcoin
+|   ├── 3-clean_data_binance.ipynb # Script to clean data an imput NAs
+|   ├── 4-eda_binance.ipynb
+|   ├── 5-features_binance.ipynb # Script to do advanced feature engineering 
+|   ├── 6-dataset_creation.ipynb # Split train and test datasets   
 
 
 ├── src/
-|    ├── config.py # Script with configuration parameters (e.g., list of cryptocurrencies)
-|    ├── database.py # Script to initialize, create tables, and save to the database
-|    ├── fetch_data.py # Script to fetch data from the API and save it to the database
-|    ├── main.py # Script used for obtain data automatically
-|    └── migrate_db.py # Script for migrate from SQLite db to a PostgreSQL
+|   └── preprocess/
+|   |   ├── clean.py # Script to delete columns and fill dates
+│   │   ├── export.py # Script to export dataframes to csv
+│   │   ├── run_pipeline.py # Scrip to run all .py of this folder and YAML
+│   │   └── split_crypto.py # Script to create subsets for each cryptocurrency
+|   ├── config.py # Script with configuration parameters (e.g., list of cryptocurrencies)
+|   ├── database.py # Script to initialize, create tables, and save to the database
+|   ├── fetch_data.py # Script to fetch data from the API and save it to the database
+|   ├── load_supabase_apy.py # Script to download data for the database
+|   ├── main.py # Script used for obtain data automatically
+|   ├── migrate_db.py # Script for migrate from SQLite db to a PostgreSQL
+|   └── supabase_client.py # Pipeline to obtain configuration from .env
 ```
 
 ## **Overview**  
