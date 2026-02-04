@@ -28,6 +28,8 @@ Predicting temporal tendencies of cryptocurrencies using ML
 
 ├── src/
 |   └── preprocess/
+|   |   ├── _init_.py
+|   |   ├── clean_prices.py # Script to clean temporal series
 |   |   ├── clean.py # Script to delete columns and fill dates
 │   │   ├── export.py # Script to export dataframes to csv
 │   │   ├── run_pipeline.py # Scrip to run all .py of this folder and YAML
