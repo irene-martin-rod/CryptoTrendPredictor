@@ -13,15 +13,19 @@ Predicting temporal tendencies of cryptocurrencies using ML
 
 ├── data/
 |   └── processed/
+|   |   ├── binancecoin.csv
+|   |   ├── bitcoin.csv
+|   |   ├── ethereum.csv
+|   |   ├── ripple.csv
+|   |   ├── tether.csv
+|   |   └── usd-coin.csv
 |   └── raw/
 |   |   ├── crypto_data.db # Local database in SQLite until June
-|   |   └── db_23062025.csv # Raw dataset
+|   |   └── db_04022026.csv # Raw dataset
 
 ├── notebooks/
 |   ├── 1-obtain_data.ipynb # Script to obtain data for the local database
-|   ├── 2-create_subset.ipynb # Script to select only data for a bitcoin
-|   ├── 3-clean_data_binance.ipynb # Script to clean data an imput NAs
-|   ├── 4-eda_binance.ipynb
+|   ├── 2-eda_binance.ipynb
 |   ├── 5-features_binance.ipynb # Script to do advanced feature engineering 
 |   ├── 6-dataset_creation.ipynb # Split train and test datasets   
 

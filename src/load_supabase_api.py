@@ -1,6 +1,6 @@
 # Pipeline for load data from a Supabase database
 
-from supabase_client import supabase
+from src.supabase_client import supabase
 import pandas as pd
 from functools import reduce
 
