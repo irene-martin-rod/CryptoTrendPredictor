@@ -7,7 +7,7 @@ from .clean import eliminate_columns, fill_dates
 from .clean_prices import clean_crypto_timeseries
 from .export import export_csv
 
-def run_preprocess(df: pd.DataFrame, config_path: str = "config/preprocess.yaml"):
+def run_preprocess(df: pd.DataFrame, config_path: str = "config/preprocess.yaml") -> None:
 
     '''
     End-to-end preprocessing pipeline for cryptocurrency time series data.

@@ -4,7 +4,7 @@ import pandas as pd
 def fill_missing_prices(df: pd.DataFrame) -> pd.DataFrame:
 
     '''
-    Fill NA in price_usd if there is a price_use and change values the next day
+    Fill NA in price_usd if there is a price_usd and change values the next day
 
     Parameters:
     df (pd.DataFrame): A DataFrame

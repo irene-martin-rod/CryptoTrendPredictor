@@ -1,12 +1,35 @@
 import pandas as pd
 
-def eliminate_columns(df: pd.DataFrame, columns):
+def eliminate_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
+
+    '''
+    Remove columns.
+
+    Parameters:
+        - df: a dataframe with values of cryptocurrencies
+        - columns : list of columns names to remove
+
+    Returns:
+        - df
+    '''
     return df.drop(columns=columns, errors="ignore")
 
 def fill_dates(df: pd.DataFrame) -> pd.DataFrame:
+
+    '''
+    Fill missing dates and fill the columns "price_usd", "market_cap", "volume" with the last 
+    known values
+
+    Parameters:
+        - df: a dataframe with values of cryptocurrencies
+
+    Returns:
+        - df
+    '''
     df = df.copy()
 
-    df["date"] = pd.to_datetime(df["date"])
+    # Remove the hour
+    df["date"] = pd.to_datetime(df["date"]).dt.normalize()
 
     df = df.set_index("date").sort_index()
 
