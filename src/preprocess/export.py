@@ -1,6 +1,6 @@
 import pandas as pd
 
-def export_csv(df: pd.Dataframe, path: str, include_index: bool = False) -> None:
+def export_csv(df: pd.DataFrame, path: str, include_index: bool = False) -> None:
     
     '''
     Exports dataframes.
