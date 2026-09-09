@@ -1,402 +1,457 @@
-# **CryptoTrendPredictor**
-Predicting temporal tendencies of cryptocurrencies using ML
+# CryptoTrendPredictor
 
-## **Proyect structure**
-``` markdown
+Predicting cryptocurrency price and trend dynamics using time-series analysis and machine learning.
+
+## Project structure
+
+```text
 /CryptoTrendPredictor/
-├── .github/workflows # Folder with all actions for GitHub Actions
-|   └── run_main.yml # Script to automatize the data retrieval and data dump to Supabase
-            database
 
-├── config
-|   └── preprocess.yaml 
-
+├── .github/
+│   └── workflows/
+│       └── run_main.yml              # GitHub Actions workflow for automated data updates
+│
+├── config/
+│   └── preprocess.yaml               # Preprocessing configuration
+│
 ├── data/
-|   └── processed/
-|   |   ├── binancecoin.csv
-|   |   ├── bitcoin.csv
-|   |   ├── ethereum.csv
-|   |   ├── ripple.csv
-|   |   ├── tether.csv
-|   |   └── usd-coin.csv
-|   └── raw/
-|   |   ├── crypto_data.db # Local database in SQLite until June
-|   |   └── db_04022026.csv # Raw dataset
-
+│   ├── processed/
+│   │   ├── binancecoin.csv
+│   │   ├── bitcoin.csv
+│   │   ├── ethereum.csv
+│   │   ├── ripple.csv
+│   │   ├── tether.csv
+│   │   └── usd-coin.csv
+│   │
+│   └── raw/
+│       ├── crypto_data.db             # Local SQLite database
+│       └── db_04022026.csv           # Raw dataset
+│
 ├── notebooks/
-|   ├── 1-obtain_data.ipynb # Script to obtain data for the local database
-|   ├── 2-eda_binance.ipynb
-|   ├── 5-features_binance.ipynb # Script to do advanced feature engineering 
-|   ├── 6-dataset_creation.ipynb # Split train and test datasets   
-
-
+│   ├── 1-obtain_data.ipynb            # Data acquisition and preprocessing
+│   └── 2-eda_crypto_*.ipynb           # Exploratory Data Analysis for each cryptocurrency
+│
 ├── src/
-|   └── preprocess/
-|   |   ├── _init_.py
-|   |   ├── clean_prices.py # Script to clean temporal series
-|   |   ├── clean.py # Script to delete columns and fill dates
-│   │   ├── export.py # Script to export dataframes to csv
-│   │   ├── run_pipeline.py # Scrip to run all .py of this folder and YAML
-│   │   └── split_crypto.py # Script to create subsets for each cryptocurrency
-|   ├── config.py # Script with configuration parameters (e.g., list of cryptocurrencies)
-|   ├── database.py # Script to initialize, create tables, and save to the database
-|   ├── fetch_data.py # Script to fetch data from the API and save it to the database
-|   ├── load_supabase_apy.py # Script to download data for the database
-|   ├── main.py # Script used for obtain data automatically
-|   ├── migrate_db.py # Script for migrate from SQLite db to a PostgreSQL
-|   └── supabase_client.py # Pipeline to obtain configuration from .env
+│   ├── analysis/
+│   │   └── eda.py                    # EDA and time-series analysis functions
+│   │
+│   └── preprocess/
+│       ├── __init__.py
+│       ├── clean_prices.py            # Price cleaning and missing-price handling
+│       ├── clean.py                   # Data cleaning and missing-date handling
+│       ├── export.py                  # CSV export utilities
+│       ├── run_pipeline.py            # Preprocessing pipeline
+│       └── split_crypto.py            # Split data by cryptocurrency
+│
+│   ├── config.py                      # Configuration parameters
+│   ├── database.py                    # Database initialization and storage
+│   ├── fetch_data.py                  # Cryptocurrency data acquisition
+│   ├── load_supabase_api.py           # Data loading from Supabase
+│   ├── main.py                        # Main automated pipeline
+│   ├── migrate_db.py                  # SQLite → PostgreSQL migration
+│   └── supabase_client.py             # Supabase/PostgreSQL connection
 ```
 
-## **Overview**  
-**CryptoTrendPredictor** is a modular framework designed to analyze and forecast cryptocurrency market trends using both **time series** and **machine learning** techniques.  
-It focuses on two main predictive tasks:  
+## Overview
 
-1. **Price Forecasting:** Predicting the *future value* of a cryptocurrency (e.g., USD price).  
-2. **Return Forecasting:** Predicting *future returns* or *price direction* (up/down movement).  
+**CryptoTrendPredictor** is a modular project for analyzing cryptocurrency time series and developing models to predict future price behavior and market trends.
 
-The project aims to combine financial indicators, deep learning architectures, and ML-based classifiers to evaluate different modeling approaches for financial time series.
+The project is currently focused on six cryptocurrencies:
 
-```
-        ┌────────────────────────┐
-        │   RAW BINANCE DATA     │
-        │  (price, volume, cap)  │
-        └──────────┬─────────────┘
-                   │
-                   ▼
-        ┌────────────────────────┐
-        │   FEATURE ENGINEERING   │
-        │  make_features()        │
-        │  → adds RSI, MACD, ...  │
-        └──────────┬─────────────┘
-                   │
-                   ▼
-        ┌────────────────────────┐
-        │   binance_features.csv  │
-        └──────────┬─────────────┘
-         ┌─────────┴───────────────┐
-         │                         │
-         ▼                         ▼
-┌────────────────────┐    ┌────────────────────┐
-│ PRICE DATASET      │    │ RETURNS DATASET    │
-│ target_price = t+1 │    │ target_return = t+1│
-│                    │    │ target_class ↑↓    │
-└─────────┬──────────┘    └─────────┬──────────┘
-          │                         │
-          ▼                         ▼
-  ┌───────────────┐         ┌────────────────┐
-  │ train_price   │         │ train_returns  │
-  │ test_price    │         │ test_returns   │
-  └──────┬────────┘         └──────┬─────────┘
-         │                         │
-         ▼                         ▼
-┌─────────────────────┐   ┌──────────────────────────┐
-│ TIME SERIES MODELS  │   │ ML/DL MODELS (XGB, RF...)│
-│ (ARIMA, Prophet...) │   │ Regression / Classification │
-└─────────────────────┘   └──────────────────────────┘
+- Bitcoin
+- Ethereum
+- Binance Coin
+- Ripple
+- Tether
+- USD Coin
+
+The project is divided into several stages:
+
+```text
+Data Acquisition
+       ↓
+Preprocessing
+       ↓
+Processed Time Series
+       ↓
+Exploratory Data Analysis
+       ↓
+Target Definition
+       ↓
+Feature Engineering
+       ↓
+Dataset Creation
+       ↓
+Modeling and Evaluation
 ```
 
+At the current stage, **data acquisition, preprocessing, and exploratory data analysis have been completed**. Target definition and modeling are the next stages of development.
 
-## **Data Pipeline**
+---
 
-### **Raw Data**
-Raw historical data is collected from Binance and includes features such as:
+# Data Pipeline
+
+## Raw Data
+
+Historical cryptocurrency data is collected through the project's data acquisition pipeline.
+
+The dataset contains variables such as:
+
 - `date`
 - `price_usd`
-- `volume`
 - `market_cap`
+- `volume`
 - `change`
+- `cryptocurrency_name`
 
-This dataset provides the base for all subsequent feature engineering and modeling tasks.
+The data is stored in a PostgreSQL database hosted through Supabase and can be exported into individual processed CSV files for each cryptocurrency.
 
-### **Feature Engineering**
-The preprocessing phase transforms raw data into a feature-rich dataset (`binance_features.csv`) by computing:
-- **Technical indicators** (RSI, MACD, Bollinger Bands, Moving Averages)  
-- **Volatility metrics**  
-- **Lagged features and returns**  
-- **Temporal encodings** (day of week, month, quarter)
+---
 
-This stage prepares the data for both time series forecasting and supervised ML models.
+## Preprocessing
 
+The preprocessing pipeline performs several operations before the data is used for analysis.
 
-### **Dataset Creation and Splitting**
+### Cryptocurrency separation
 
-From the feature-enhanced data, two separate datasets are generated based on prediction type:
+The raw dataset is divided into individual time series, one for each cryptocurrency.
 
-#### **Price Prediction Dataset**
-Used for models like **ARIMA, Prophet, and LSTM** that focus on forecasting future price values.
+The current processed datasets are:
+
+```text
+bitcoin.csv
+ethereum.csv
+binancecoin.csv
+ripple.csv
+tether.csv
+usd-coin.csv
+```
+
+### Price cleaning
+
+Missing prices are reconstructed when possible using the following observation and its percentage change.
+
+### Missing dates
+
+The time series are converted to a daily frequency. Missing calendar dates are inserted and the corresponding variables are filled according to the preprocessing strategy.
+
+During development, timestamp normalization was required because the original observations contained different times of day. Dates are therefore normalized before the daily time series is completed.
+
+### Output
+
+The resulting datasets are stored in:
+
+```text
+data/processed/
+```
+
+Each cryptocurrency is represented by an independent daily time series.
+
+---
+
+# Exploratory Data Analysis
+
+The EDA stage has been performed independently for all six cryptocurrencies.
+
+The analysis currently includes:
+
+1. Price and market variables
+2. Returns and volatility
+3. Autocorrelation
+4. Trend analysis
+5. Slope distributions
+6. Moving averages
+7. Time-series decomposition
+
+The EDA is intended to understand the characteristics of the data before defining prediction targets and machine-learning features.
+
+---
+
+## 1. Price and market variables
+
+The evolution of:
+
+- `price_usd`
+- `market_cap`
+- `volume`
+
+is analyzed over time.
+
+The analysis shows two broad behavioral groups:
+
+### Volatile cryptocurrencies
+
+- Bitcoin
+- Ethereum
+- Binance Coin
+- Ripple
+
+These assets show considerably larger price movements and more variability.
+
+### Stablecoins
+
+- Tether
+- USD Coin
+
+Their prices remain very close to USD 1, resulting in substantially smaller price movements and slope values.
+
+This distinction is important for the subsequent modeling stage because the same absolute variation does not have the same meaning across all cryptocurrencies.
+
+---
+
+## 2. Returns and volatility
+
+Percentage returns are calculated from the cryptocurrency price:
 
 ```python
-target_price = price_usd.shift(-1)
+returns = price_usd.pct_change() * 100
 ```
 
-- Predicts the *next-day price*.
-- Splits the data chronologically into **80% train** and **20% test** sets.
+Rolling volatility is then calculated using a 7-day window.
 
-Output files:
-```
-binance_target_price.csv
-binance_train_price.csv
-binance_test_price.csv
-```
+This analysis provides information about the short-term variability of each cryptocurrency and will later be useful when constructing predictive features.
 
-#### **Returns Prediction Dataset**
-Used for **machine learning and deep learning** models that predict *future returns* or *trend direction*.
+---
 
-```python
-target_return = returns.shift(-1)
-target_class = (target_return > 0).astype(int)
-```
+## 3. Autocorrelation
 
-- Predicts the *next-day return* (continuous) and *trend class* (binary).  
-- Also split temporally (80% / 20%).
+Autocorrelation is analyzed for both:
 
-Output files:
-```
-binance_target_returns.csv
-binance_train_returns.csv
-binance_test_returns.csv
-```
+- cryptocurrency prices
+- percentage returns
 
-## **Modeling Approaches**
+using up to 30 lags.
 
-| Task Type | Model Family | Example Models | Objective |
-|------------|---------------|----------------|------------|
-| **Time Series Forecasting** | Statistical / DL | ARIMA, Prophet, LSTM | Predict future **price values** |
-| **Machine Learning Regression** | Tree-based / Neural | XGBoost, Random Forest, MLP | Predict **next-day returns** |
-| **Classification** | Supervised Learning | Logistic Regression, SVM, LightGBM | Predict **trend direction (up/down)** |
+This provides information about the temporal dependence present in the series and helps motivate the use of time-series and lag-based approaches in later stages.
 
-Each model is evaluated using both standard performance metrics (MAE, RMSE, R²) and trading-related measures (accuracy of direction, precision, recall).
+---
 
-## **Data Export**
+## 4. Trend analysis
 
-All generated datasets are automatically saved into the `/data/processed/` directory using the utility function:
+Rolling linear-regression slopes are calculated using three windows:
 
-```python
-export_dataset(df, path, include_index=False)
+```text
+7 days
+14 days
+30 days
 ```
 
-This ensures reproducibility and consistent access to processed data for later experimentation.
+The slope is calculated on the logarithm of the price, allowing the trend measure to represent relative rather than absolute price changes.
 
+The three windows capture different types of behavior:
 
------------
+```text
+7-day slope   → short-term trend
+14-day slope  → intermediate trend
+30-day slope  → smoother/longer trend
+```
 
+At this stage, the slopes are used for **exploratory analysis only**.
 
+No final trend categories are assigned yet.
 
-## **Automating ```main.py``` Execution**
-To ensure that ```main.py``` runs automatically at regular intervals without manual intervention, follow the appropriate setup based on your operating system.
+---
 
-### **Windows: Task Scheduler**
-Windows provides the **Task Scheduler**, which allows you to automate script execution.
+## 5. Slope distribution analysis
 
-Steps to schedule ```main.py``` in Windows:
-**CMD**
-1. **Open Task Scheduler:**
-    Press ```Win + R```, type ```taskschd.msc```, and press ```Enter```.
+The distribution of the rolling slopes was analyzed using descriptive statistics and percentiles.
 
-2. **Create a new task:**
-    Click **"Create Basic Task"** on the right panel.
+This analysis showed an important difference between cryptocurrencies.
 
-3. **Set task name and description:**
-    - Name it something like ```Crypto Data Fetcher```.
-    - Add a short description: *Runs main.py to fetch cryptocurrency data*.
+For example, the 7-day slope distributions have substantially different scales:
 
-4. **Choose the frequency:**
-    Select  ```Daily ``` or  ```Hourly ```, depending on how often you want the script to run.
+```text
+Bitcoin       P05 ≈ -0.0123    P95 ≈  0.0164
+Ethereum      P05 ≈ -0.0289    P95 ≈  0.0329
+Binance Coin  P05 ≈ -0.0143    P95 ≈  0.0159
+Ripple        P05 ≈ -0.0147    P95 ≈  0.0233
+Tether        P05 ≈ -0.000075  P95 ≈  0.000107
+USD Coin      P05 ≈ -0.000019  P95 ≈  0.000018
+```
 
-5. **Set the start time:**
-    Choose the time and interval for execution.
+This shows that fixed absolute thresholds for slope would not be appropriate across all cryptocurrencies.
 
-6. **Select the action → Start a program:**
-    - Under "Program/script", enter:
+For example, thresholds such as:
 
-        ```sh
-        C:\Windows\System32\cmd.exe
-        ```
-    - Under **"Add arguments"**, enter the path to ```main.py```:
-        ```sh
-        /c "C:\path\to\your\project\venv\Scripts\activate && python C:\path\to\your\project\main.py"
-        ```
-    - Under **"Start in"**, enter the folder where ```main.py``` is located.
-    ```sh
-    C:\path\to\your\project
-    ```
+```text
+-0.20
+-0.05
++0.05
++0.20
+```
 
-7. **Finish and save:**
-    Confirm and test the scheduled task.
+would be too extreme for most of the observed data.
 
-The Task Scheduler will now run ```main.py``` at the specified intervals.
+Therefore, the final trend categories will be defined in a later stage using a data-driven approach rather than arbitrary fixed slope values.
 
-**WSL**
-1. **Open WSL Terminal:**
+The planned trend classes are:
 
-2. **Edit the crontab file:**
-    ```sh
-    crontab -e
-    ```
+```text
+-2 → strong decrease
+-1 → decrease
+ 0 → stable
++1 → increase
++2 → strong increase
+```
 
-3. **Add the following cron job to run main.py every hour:**
-    ```Hourly```
-    ```sh
-    0 * * * * source /mnt/c/Users/YOUR_USER/path/to/venv/Scripts/activate && python /mnt/c/Users/YOUR_USER/path/to/main.py
-    ```
+The exact thresholds will be established during **target definition**, not during the EDA.
 
-    ```Daily``` <!-- Runs at 03:00 AM -->
-    ```sh
-    0 3 * * * source /mnt/c/Users/YOUR_USER/path/to/venv/Scripts/activate && python /mnt/c/Users/YOUR_USER/path/to/main.py
-    ```
-    (Replace ```YOUR_USER``` with your username and update the script path accordingly.)
+---
 
-4. **Save and exit:**
-    In nano, press ```Ctrl + X```, then ```Y```, and ```Enter```.
+## 6. Moving averages
 
-5. **Check scheduled jobs:**
-    ```sh
-    crontab -l
-    ```
+Moving averages are calculated using:
 
-Possibily, WSL does not execute ```cron``` automatically, but you can configure:
-1. **Open WSL configuration file:**
-    ```sh
-    sudo nano /etc/wsl.conf
-    ```
+```text
+MA7
+MA30
+```
 
-2. **Add at the end of the file:**
-    ```markdown
-    [boot]
-    command="service cron start"
-    ```
+These provide smoothed representations of the price series and help identify changes in short- and medium-term price behavior.
 
-3. **Save and restart the terminal:**
-    ```sh
-    wsl --shutdown
-    ```
+They are also potential candidates for future predictive features.
 
-- To check if ```cron``` is running:
-    ```sh
-    sudo service cron status
-    ```
+---
 
-- To iniziate ```cron```:
-    ```sh
-    sudo service cron start
-    ```
+## 7. Time-series decomposition
 
-- To check if ```cron jobs``` are been executed:
-    ```sh
-    grep cron /var/log/syslog
-    ```
+The price series are decomposed using additive and multiplicative approaches with periods of:
 
+```text
+7 days
+30 days
+```
 
+The decomposition is used as an exploratory tool to inspect:
 
-### **Mac: Using ```launchd``` (LaunchAgents)**
-On macOS, you can automate tasks using ```launchd``` by creating a **LaunchAgent**.
+- trend
+- seasonal component
+- residuals
 
-Steps to automate main.py in macOS:
-1. **Open Terminal:**
-    Press ```Cmd + Space```, type ```Terminal```, and press ```Enter```.
+The results are not interpreted as definitive evidence of a specific seasonal pattern. In particular, the use of a 7-day period does not by itself establish the existence of weekly seasonality.
 
-2. **Create a new LaunchAgent configuration file:**
-    ```sh
-    nano ~/Library/LaunchAgents/com.crypto.fetch.plist
-    ```
+---
 
-3. **Add the following configuration:**
-    ```Hourly ```
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-        <dict>
-            <key>Label</key>
-            <string>com.crypto.fetch</string>
-            <key>ProgramArguments</key>
-            <array>
-                <string>/usr/bin/python3</string>
-                <string>/Users/YOUR_USER/path/to/project/main.py</string>
-            </array>
-            <key>StartInterval</key>
-            <integer>3600</integer> <!-- Runs every 3600 seconds (1 hour) -->
-            <key>RunAtLoad</key>
-            <true/>
-        </dict>
-    </plist>
-    ```
+# EDA Conclusions
 
-    ```Daily ```
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-        <dict>
-            <key>Label</key>
-            <string>com.crypto.fetch</string>
-            <key>ProgramArguments</key>
-            <array>
-                <string>/usr/bin/python3</string>
-                <string>/Users/YOUR_USER/path/to/project/main.py</string>
-            </array>
-            <key>StartCalendarInterval</key>
-            <dict>
-                <key>Hour</key>
-                <integer>3</integer> <!-- Runs at 03:00 AM -->
-                <key>Minute</key>
-                <integer>0</integer>
-            </dict>
-            <key>RunAtLoad</key>
-            <true/>
-        </dict>
-    </plist>
-    ```
+The EDA provides several conclusions that will guide the next stages of the project.
 
-    (Replace ```YOUR_USER``` with your actual username and update the ```main.py``` path accordingly.)
+### 1. The cryptocurrencies have substantially different behavior
 
-4. **Load the task into ```launchd```:**
-    ```sh
-    launchctl load ~/Library/LaunchAgents/com.crypto.fetch.plist
-    ```
-    ```launchd``` will now automatically run ```main.py``` every hour.
+Bitcoin, Ethereum, Binance Coin and Ripple show considerably greater variability than Tether and USD Coin.
 
-    To verify if it is running:
-    ```sh
-    launchctl list | grep com.crypto.fetch
-    ```
+Therefore, the modeling stage should account for the different scales and dynamics of each cryptocurrency.
 
+### 2. Returns and volatility are important variables
 
+Price levels alone do not fully describe the behavior of the series. Returns and rolling volatility provide additional information about short-term market dynamics.
 
-### **Linux: Using ```cron``` Jobs:**
-In Linux, we can use ```cron```, a built-in task scheduler.
+### 3. Temporal dependence is present
 
-Steps to automate ```main.py``` in Linux:
-1. **Open Terminal:**
-    Press ```Ctrl + Alt + T```.
+The autocorrelation analysis provides evidence that the time dimension should be explicitly considered when constructing predictive models.
 
-2. **Edit the crontab file:**
-    ```sh
-    crontab -e
-    ```
+### 4. Trend depends on the observation window
 
-3. **Add the following cron job to run main.py every hour:**
-    ```Hourly```
-    ```sh
-    0 * * * * /bin/bash -c 'source /home/YOUR_USER/path/to/project/venv/bin/activate && python /home/YOUR_USER/path/to/project/main.py'
-    ```
+The 7-, 14- and 30-day slopes capture different levels of trend sensitivity.
 
-    ```Daily``` <!-- Runs at 03:00 AM -->
-    ```sh
-    0 3 * * * /bin/bash -c 'source /home/YOUR_USER/path/to/project/venv/bin/activate && python /home/YOUR_USER/path/to/project/main.py'
-    ```
-    (Replace ```YOUR_USER``` with your username and update the script path accordingly.)
+Shorter windows respond more quickly to changes, while longer windows provide smoother trend estimates.
 
-4. **Save and exit:**
-    In nano, press ```Ctrl + X```, then ```Y```, and ```Enter```.
+### 5. Absolute slope thresholds are not appropriate across cryptocurrencies
 
-5. **Check scheduled jobs:**
-    ```sh
-    crontab -l
-    ```
+The slope distributions differ considerably between assets, particularly between volatile cryptocurrencies and stablecoins.
 
-Now, ```cron``` will automatically run main.py every hour.
+Consequently, the final trend classification should use thresholds that account for the distribution of the data rather than arbitrary absolute values.
 
+### 6. The EDA is complete
+
+The exploratory analysis provides sufficient information to move to the next stage:
+
+```text
+EDA
+ ↓
+Target Definition
+```
+
+The next stage will define the prediction targets and their corresponding horizons.
+
+---
+
+# Planned Prediction Targets
+
+The project will investigate both **price prediction** and **trend prediction**.
+
+The prediction horizons currently considered are:
+
+| Horizon | Period |
+|---|---:|
+| Short-term | 7 days |
+| Medium-term | 21 days |
+| Long-term | 50 days |
+
+These horizons are currently treated as the project's working definition and will be implemented and evaluated during the target-definition stage.
+
+### Price prediction
+
+The objective will be to predict future cryptocurrency prices at the selected horizons.
+
+### Trend prediction
+
+The objective will be to classify future price behavior into five categories:
+
+```text
+-2 → strong decrease
+-1 → decrease
+ 0 → stable
++1 → increase
++2 → strong increase
+```
+
+The precise mathematical definition of these classes will be established in the next notebook.
+
+---
+
+# Next Steps
+
+The next stages of development are:
+
+```text
+1. Data acquisition              ✅
+2. Preprocessing                 ✅
+3. Exploratory Data Analysis     ✅
+4. Target definition             → next
+5. Feature engineering
+6. Dataset creation
+7. Model training
+8. Model comparison
+9. Evaluation
+```
+
+Potential modeling approaches will be selected after the targets and features have been defined. Statistical time-series models, machine-learning models and change-point detection methods will be considered according to their suitability for each task.
+
+---
+
+# Data Export
+
+Processed datasets are exported to the `data/processed/` directory using the project's CSV export utility.
+
+The export utility ensures a consistent format for the processed cryptocurrency time series and provides reproducible inputs for subsequent analysis.
+
+---
+
+# Automation
+
+The project includes an automated data pipeline based on **GitHub Actions** and **Supabase**.
+
+The workflow is designed to periodically execute the data acquisition pipeline, retrieve updated cryptocurrency data, and store it in the remote PostgreSQL database.
+
+The local project can also be configured to run the main pipeline using operating-system scheduling tools such as:
+
+- Windows Task Scheduler
+- WSL `cron`
+- Linux `cron`
+- macOS `launchd`
+
+---
 
 ## Previous Setup
 
@@ -404,34 +459,25 @@ Until June 2025, the data was manually fetched and stored locally in a SQLite da
 
 ---
 
-## Current Setup (since 23rd June 2025)
+## Current Setup
 
-To automate data fetching, storage, and migration, the project now integrates with **Supabase** for remote PostgreSQL database hosting and uses **GitHub Actions** for scheduling daily data updates.
+The project now uses Supabase for remote PostgreSQL database hosting and GitHub Actions for scheduled data updates.
 
 ### Database Migration
 
-- Data from the local SQLite database is migrated to Supabase PostgreSQL.
-- Database schema is synchronized with the remote database.
+- Data from the local SQLite database was migrated to Supabase PostgreSQL.
+- The database schema was synchronized with the remote database.
 
 ### Automated Data Fetching and Storage
 
-- A scheduled GitHub Actions workflow runs daily at **12:00 PM CET** (10:00 UTC).
-- The workflow runs `src/main.py` which:
-  - Initializes the database schema if needed.
-  - Fetches the latest cryptocurrency data from the CoinGecko API.
-  - Stores the data in the Supabase PostgreSQL database.
+The automated workflow:
+
+1. Initializes the database schema if required.
+2. Fetches the latest cryptocurrency data through the CoinGecko API.
+3. Stores the data in the Supabase PostgreSQL database.
 
 ### Environment Configuration
 
-- Sensitive information like database connection URLs are stored in GitHub Secrets as `POSTGRES_URL`.
-- The project uses a `.env` file at the project root for local development.
+Sensitive configuration values are stored outside the repository.
 
----
-
-## How to Run Locally
-
-1. Create and configure your `.env` file in the project root with the following:
-
-   ```env
-   POSTGRES_URL=postgresql://username:password@host:port/database
-
+For local development, environment variables are configured using a `.env` file at the project root.
