@@ -236,3 +236,41 @@ def autocorrelation_plots(
         ax.set_title(f"Autocorrelation: {column}")
         plt.tight_layout()
         plt.show()
+
+
+def slope_distribution(
+    df: pd.DataFrame,
+    price_col: str = "price_usd",
+    windows: tuple = (7, 14, 30),
+) -> pd.DataFrame:
+    """
+    Calculate rolling log-price slopes and summarize their distributions.
+
+    Returns a DataFrame with descriptive statistics and selected percentiles
+    for each slope window.
+    """
+    result = {}
+
+    for window in windows:
+        slope_df = trend_slope(df, price_col=price_col, window=window)
+
+        slope = slope_df["trend_slope"].dropna()
+
+        result[f"slope_{window}"] = {
+            "count": slope.count(),
+            "min": slope.min(),
+            "p05": slope.quantile(0.05),
+            "p10": slope.quantile(0.10),
+            "p25": slope.quantile(0.25),
+            "median": slope.median(),
+            "p75": slope.quantile(0.75),
+            "p90": slope.quantile(0.90),
+            "p95": slope.quantile(0.95),
+            "max": slope.max(),
+            "mean": slope.mean(),
+            "std": slope.std(),
+        }
+
+    summary = pd.DataFrame(result).T
+
+    return summary
