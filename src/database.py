@@ -5,19 +5,24 @@ from config import DB_NAME  # Import database name from config.py
 
 
 
-def init_db():
+def init_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
+    '''
+    Initialize the SQLite database and create the required tables if they do not exist.
 
-    '''
-    Initializes the SQLite database and creates the necessary tables if they do not exist.
-    
     Tables:
-    - Cryptocurrencies: Stores unique cryptocurrency names.
-    - Price: Stores historical price data in USD.
-    - Market_capitalization: Stores historical market capitalization data.
-    - Transaction_volume_24h: Stores 24-hour transaction volume data.
-    - Value_change_24h: Stores 24-hour price change data.
+        - Cryptocurrencies: stores unique cryptocurrency names
+        - Price: stores historical price data in USD
+        - Market_capitalization: stores historical market capitalization data
+        - Transaction_volume_24h: stores historical 24-hour transaction volume data
+        - Value_change_24h: stores historical 24-hour price change data
+
+    Parameters:
+        - None
+
+    Returns:
+        - conn: SQLite database connection object
+        - cursor: SQLite cursor object used to execute database queries
     '''
-    
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     
@@ -80,19 +85,16 @@ def init_db():
 
 
 
-def get_crypto_id(crypto):
-
+def get_crypto_id(crypto: str) -> int:
     '''
-    Retrieves the cryptocurrency ID from the database. 
-    If the cryptocurrency does not exist, it is inserted into the database.
+    Retrieve the ID of a cryptocurrency from the database, inserting it if it does not exist.
 
     Parameters:
-    - crypto (str): The name of the cryptocurrency.
+        - crypto: name of the cryptocurrency to retrieve or insert
 
     Returns:
-    - int: The ID of the cryptocurrency in the database.
+        - crypto_id: integer identifier of the cryptocurrency in the database
     '''
-    
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     
@@ -107,21 +109,24 @@ def get_crypto_id(crypto):
 
 
 
-def save_to_db(data):
+def save_to_db(data: dict | None) -> None:
     '''
-    Saves cryptocurrency data into the database.
+    Save cryptocurrency market data into the SQLite database.
 
     Parameters:
-    - data (dict): Dictionary containing cryptocurrency data with the following keys:
-        - date (str): The timestamp of the data.
-        - crypto (str): The cryptocurrency name.
-        - price_usd (float): The price of the cryptocurrency in USD.
-        - market_cap (float): The market capitalization value.
-        - volume_24h (float): The 24-hour transaction volume.
-        - change_24h (float): The 24-hour percentage change.
-        
+        - data: dictionary containing the cryptocurrency information with
+          the following keys:
+            - date: timestamp of the recorded data
+            - crypto: name of the cryptocurrency
+            - price_usd: cryptocurrency price in USD
+            - market_cap: cryptocurrency market capitalization
+            - volume_24h: 24-hour transaction volume
+            - change_24h: 24-hour percentage price change
+
+    Returns:
+        - None: inserts the cryptocurrency data into the corresponding
+          database tables. If data is None, no operation is performed
     '''
-    
     if data is None:
         return
     

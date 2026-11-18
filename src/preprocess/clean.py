@@ -1,30 +1,34 @@
 import pandas as pd
 
 def eliminate_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
-
     '''
-    Remove columns.
+    Remove the specified columns from a cryptocurrency DataFrame.
 
     Parameters:
-        - df: a dataframe with values of cryptocurrencies
-        - columns : list of columns names to remove
+        - df: pandas DataFrame containing cryptocurrency data
+        - columns: list of column names to remove from the DataFrame
 
     Returns:
-        - df
+        - df: DataFrame with the specified columns removed; columns that
+          do not exist in the DataFrame are ignored
     '''
     return df.drop(columns=columns, errors="ignore")
 
-def fill_dates(df: pd.DataFrame) -> pd.DataFrame:
 
+
+def fill_dates(df: pd.DataFrame) -> pd.DataFrame:
     '''
-    Fill missing dates and fill the columns "price_usd", "market_cap", "volume" with the last 
-    known values
+    Fill missing dates and forward-fill numerical variables using the last known values.
 
     Parameters:
-        - df: a dataframe with values of cryptocurrencies
+        - df: pandas DataFrame containing cryptocurrency time series data,
+          including the columns 'date', 'price_usd', 'market_cap' and 'volume'
 
     Returns:
-        - df
+        - df: DataFrame with a complete daily date range between the minimum
+          and maximum dates, where missing values in 'price_usd', 'market_cap'
+          and 'volume' are filled using the last available observations.
+          If present, 'cryptocurrency_id' is also forward-filled
     '''
     df = df.copy()
 

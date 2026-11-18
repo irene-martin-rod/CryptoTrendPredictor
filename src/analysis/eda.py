@@ -6,8 +6,20 @@ import seaborn as sns
 from statsmodels.tsa.seasonal import seasonal_decompose
 
 
-def split_train_test(df: pd.DataFrame, threshold: float = 0.8):
-    """Split a time series chronologically into train and test datasets."""
+def split_train_test(df: pd.DataFrame, 
+                     threshold: float = 0.8) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    '''
+    Split a time series chronologically into training and test datasets.
+
+    Parameters:
+        - df: pandas DataFrame containing the time series data
+        - threshold: proportion of data assigned to the training set
+          (default=0.8)
+
+    Returns:
+        - train: DataFrame containing the training data
+        - test: DataFrame containing the test data
+    '''
     if not 0 < threshold < 1:
         raise ValueError("threshold must be between 0 and 1.")
 
@@ -16,8 +28,19 @@ def split_train_test(df: pd.DataFrame, threshold: float = 0.8):
     return df.iloc[:split_idx].copy(), df.iloc[split_idx:].copy()
 
 
-def time_plots(df: pd.DataFrame, features: list | None = None) -> None:
-    """Display temporal plots for selected features."""
+def time_plots(df: pd.DataFrame,
+               features: list | None = None) -> None:
+    '''
+    Display temporal plots for selected features.
+
+    Parameters:
+        - df: pandas DataFrame containing the time series data
+        - features: list of columns to display in the temporal plots
+          (default=["price_usd", "market_cap", "volume"])
+
+    Returns:
+        - None: displays temporal plots for the selected features
+    '''
     if features is None:
         features = ["price_usd", "market_cap", "volume"]
     if not features:
@@ -41,7 +64,18 @@ def time_plots(df: pd.DataFrame, features: list | None = None) -> None:
 
 
 def matrix_correlation(df: pd.DataFrame, features: list | None = None) -> None:
-    """Display a correlation matrix for selected features."""
+    '''
+    Display a correlation matrix for selected features.
+
+    Parameters:
+        - df: pandas DataFrame containing the dataset
+        - features: list of columns used to calculate the correlation matrix
+          (default=["price_usd", "market_cap", "volume"])
+
+    Returns:
+        - None: displays a heatmap representing the correlation matrix
+          between the selected features
+    '''
     if features is None:
         features = ["price_usd", "market_cap", "volume"]
 
@@ -57,7 +91,18 @@ def matrix_correlation(df: pd.DataFrame, features: list | None = None) -> None:
 
 
 def scatter_matrix(df: pd.DataFrame, features: list | None = None) -> None:
-    """Display distributions and pairwise relationships."""
+    '''
+    Display distributions and pairwise relationships between selected features.
+
+    Parameters:
+        - df: pandas DataFrame containing the dataset
+        - features: list of columns used to display distributions and
+          pairwise relationships (default=["price_usd", "market_cap", "volume"])
+
+    Returns:
+        - None: displays a pairplot showing the distributions of each feature
+          and the relationships between pairs of features
+    '''
     if features is None:
         features = ["price_usd", "market_cap", "volume"]
 
@@ -66,13 +111,25 @@ def scatter_matrix(df: pd.DataFrame, features: list | None = None) -> None:
     plt.show()
 
 
-def decompose_time_series(
-    df: pd.DataFrame,
-    column: str,
-    model: str = "multiplicative",
-    freq: int = 7,
-) -> None:
-    """Decompose a time series into trend, seasonality, and residuals."""
+def decompose_time_series(df: pd.DataFrame,
+                          column: str,
+                          model: str = "multiplicative",
+                          freq: int = 7) -> None:
+    '''
+    Decompose a time series into trend, seasonality, and residual components.
+
+    Parameters:
+        - df: pandas DataFrame containing the time series data with a
+          DatetimeIndex
+        - column: name of the column containing the time series to decompose
+        - model: type of decomposition to apply, either "additive" or
+          "multiplicative" (default="multiplicative")
+        - freq: number of observations per seasonal cycle (default=7)
+
+    Returns:
+        - None: displays the decomposed time series, including its observed,
+          trend, seasonal, and residual components
+    '''
     if not isinstance(df.index, pd.DatetimeIndex):
         raise ValueError("DataFrame must have a DatetimeIndex.")
     if model not in {"additive", "multiplicative"}:
@@ -97,10 +154,24 @@ def decompose_time_series(
     plt.show()
 
 
-def returns_and_volatility(
-    df: pd.DataFrame, price_col: str = "price_usd", window: int = 7
-) -> pd.DataFrame:
-    """Calculate percentage returns and rolling volatility."""
+def returns_and_volatility(df: pd.DataFrame, price_col: str = "price_usd",
+                           window: int = 7) -> pd.DataFrame:
+    '''
+    Calculate percentage returns and rolling volatility.
+
+    Parameters:
+        - df: pandas DataFrame containing the time series data
+        - price_col: name of the column containing the price values
+          (default="price_usd")
+        - window: number of observations used to calculate rolling volatility
+          (default=7)
+
+    Returns:
+        - result: DataFrame containing the original data along with two
+          additional columns:
+            - returns: percentage change in price between consecutive periods
+            - volatility: rolling standard deviation of percentage returns
+    '''
     if window < 2:
         raise ValueError("window must be >= 2.")
 
@@ -126,18 +197,29 @@ def returns_and_volatility(
     return result
 
 
-def trend_slope(
-    df: pd.DataFrame,
-    price_col: str = "price_usd",
-    window: int = 7,
-    use_log: bool = True,
-) -> pd.DataFrame:
-    """
-    Calculate rolling linear-regression slope.
+def trend_slope(df: pd.DataFrame, price_col: str = "price_usd", window: int = 7,
+                use_log: bool = True) -> pd.DataFrame:
+    '''
+    Calculate rolling linear-regression slope to measure the price trend.
 
-    By default the regression is performed on log(price), making the
+    By default, the regression is performed on log(price), making the
     slope comparable across cryptocurrencies with different price scales.
-    """
+
+    Parameters:
+        - df: pandas DataFrame containing the time series data
+        - price_col: name of the column containing the price values
+          (default="price_usd")
+        - window: number of observations used to calculate the rolling
+          linear-regression slope (default=7)
+        - use_log: whether to apply the natural logarithm to price values
+          before calculating the slope (default=True)
+
+    Returns:
+        - result: DataFrame containing the original data along with two
+          additional columns:
+            - trend_slope: rolling linear-regression slope
+            - trend_slope_pct: approximate percentage change per period
+    '''
     if window < 2:
         raise ValueError("window must be >= 2.")
 
@@ -187,12 +269,23 @@ def trend_slope(
     return result
 
 
-def moving_averages(
-    df: pd.DataFrame,
-    price_col: str = "price_usd",
-    windows: tuple = (7, 30),
-) -> pd.DataFrame:
-    """Calculate and plot rolling moving averages."""
+def moving_averages(df: pd.DataFrame, price_col: str = "price_usd",
+                    windows: tuple = (7, 30)) -> pd.DataFrame:
+    '''
+    Calculate and plot rolling moving averages.
+
+    Parameters:
+        - df: pandas DataFrame containing the time series data
+        - price_col: name of the column containing the price values
+          (default="price_usd")
+        - windows: tuple containing the window sizes (in observations)
+          used to calculate the moving averages (default=(7, 30))
+
+    Returns:
+        - result: DataFrame containing the original data along with
+          additional columns for each calculated moving average
+          (e.g. ma_7d and ma_30d)
+    '''
     result = df.sort_index().copy()
 
     for window in windows:
@@ -215,12 +308,23 @@ def moving_averages(
     return result
 
 
-def autocorrelation_plots(
-    df: pd.DataFrame,
-    columns: list | None = None,
-    lags: int = 30,
-) -> None:
-    """Plot autocorrelation for selected series."""
+def autocorrelation_plots(df: pd.DataFrame, columns: list | None = None,
+                          lags: int = 30) -> None:
+    '''
+    Plot autocorrelation for selected time series.
+
+    Parameters:
+        - df: pandas DataFrame containing the time series data
+        - columns: list of columns for which autocorrelation plots
+          will be generated (default=["price_usd", "returns"])
+        - lags: maximum number of time lags to include in the
+          autocorrelation plots (default=30)
+
+    Returns:
+        - None: displays an autocorrelation plot for each selected
+          column, showing the correlation between observations and
+          their lagged values
+    '''
     from statsmodels.graphics.tsaplots import plot_acf
 
     if columns is None:
@@ -238,17 +342,34 @@ def autocorrelation_plots(
         plt.show()
 
 
-def slope_distribution(
-    df: pd.DataFrame,
-    price_col: str = "price_usd",
-    windows: tuple = (7, 14, 30),
-) -> pd.DataFrame:
-    """
+def slope_distribution(df: pd.DataFrame, price_col: str = "price_usd",
+                       windows: tuple = (7, 14, 30)) -> pd.DataFrame:
+    '''
     Calculate rolling log-price slopes and summarize their distributions.
 
-    Returns a DataFrame with descriptive statistics and selected percentiles
-    for each slope window.
-    """
+    Parameters:
+        - df: pandas DataFrame containing the time series data
+        - price_col: name of the column containing the price values
+          (default="price_usd")
+        - windows: tuple containing the window sizes (in observations)
+          used to calculate the rolling slopes (default=(7, 14, 30))
+
+    Returns:
+        - summary: DataFrame containing descriptive statistics and
+          selected percentiles of the rolling slopes for each window:
+            - count: number of valid observations
+            - min: minimum slope value
+            - p05: 5th percentile
+            - p10: 10th percentile
+            - p25: 25th percentile
+            - median: median slope value
+            - p75: 75th percentile
+            - p90: 90th percentile
+            - p95: 95th percentile
+            - max: maximum slope value
+            - mean: mean slope value
+            - std: standard deviation of slope values
+    '''
     result = {}
 
     for window in windows:
