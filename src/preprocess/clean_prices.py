@@ -2,15 +2,16 @@ import pandas as pd
 
 
 def fill_missing_prices(df: pd.DataFrame) -> pd.DataFrame:
-
     '''
-    Fill NA in price_usd if there is a price_usd and change values the next day
+    Fill missing price values using the next day's price and percentage change.
 
     Parameters:
-    df (pd.DataFrame): A DataFrame
+        - df: pandas DataFrame containing the time series data, including
+          the columns 'date', 'price_usd' and 'change'
 
     Returns:
-    pd.DataFrame: A dataframe without the colums
+        - df: DataFrame with missing values in 'price_usd' filled when
+          the next day's price and percentage change are available
     '''
 
     df = df.copy()
@@ -29,15 +30,17 @@ def fill_missing_prices(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def fill_rest_variables(df: pd.DataFrame) -> pd.DataFrame:
-
     '''
-    Impute NAs using values of previous days.
+    Impute missing values in the remaining variables using previous observations.
 
     Parameters:
-    df (pd.DataFrame): A DataFrame
+        - df: pandas DataFrame containing the time series data, including
+          the columns 'date', 'price_usd', 'change' and 'cryptocurrency_name'
 
     Returns:
-    pd.DataFrame: A dataframe without the columns
+        - df: DataFrame with missing values in the remaining variables
+          forward-filled, the 'change' column removed and rows without
+          a valid 'price_usd' value dropped
     '''
 
     df = df.sort_values('date').reset_index(drop=True)
@@ -55,15 +58,16 @@ def fill_rest_variables(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_crypto_timeseries(df: pd.DataFrame) -> pd.DataFrame:
-
     '''
-    Full cleaning pipeline for a single cryptocurrency.
+    Apply the complete cleaning pipeline to a single cryptocurrency time series.
 
     Parameters:
-        - df: raw Pandas dataframe
-    
+        - df: raw pandas DataFrame containing the cryptocurrency time series
+          data, including missing values
+
     Returns:
-        df: clean Pandas dataframe
+        - df: cleaned pandas DataFrame with missing prices imputed,
+          remaining variables forward-filled and invalid price rows removed
     '''
     
     df = fill_missing_prices(df)

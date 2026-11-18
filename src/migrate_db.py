@@ -87,7 +87,21 @@ pg_conn.commit()
 pg_cursor.execute("SELECT id, name FROM Cryptocurrencies")
 pg_cryptos = {name: cid for cid, name in pg_cursor.fetchall()}
 
-def migrate_table(sqlite_table, pg_table, columns):
+def migrate_table(sqlite_table: str, pg_table: str, columns: list[str]) -> None:
+    '''
+    Migrate cryptocurrency records from a SQLite table to the corresponding PostgreSQL table.
+
+    Parameters:
+        - sqlite_table: name of the source table in the SQLite database
+        - pg_table: name of the destination table in the PostgreSQL database
+        - columns: list of column names to migrate from the source table
+
+    Returns:
+        - None: retrieves records from the SQLite table, maps cryptocurrency
+          IDs between databases using cryptocurrency names, and inserts the
+          corresponding records into the PostgreSQL table. Records whose
+          cryptocurrency does not exist in PostgreSQL are skipped
+    '''
     sqlite_cursor.execute(f"SELECT cryptocurrency_id, date, {', '.join(columns)} FROM {sqlite_table}")
     rows = sqlite_cursor.fetchall()
 
@@ -128,4 +142,4 @@ pg_conn.commit()
 sqlite_conn.close()
 pg_conn.close()
 
-print("✅ Migration completed successfully.")
+print("Migration completed successfully.")

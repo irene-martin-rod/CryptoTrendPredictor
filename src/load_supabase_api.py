@@ -5,6 +5,17 @@ import pandas as pd
 from functools import reduce
 
 def load_table(table_name: str) -> pd.DataFrame:
+    '''
+    Load all records from a specified Supabase table into a pandas DataFrame.
+
+    Parameters:
+        - table_name: name of the Supabase table to retrieve. The name is
+          converted to lowercase before querying the database
+
+    Returns:
+        - df: pandas DataFrame containing all records retrieved from the
+          specified table. Returns an empty DataFrame if no data is available
+    '''
     table_name = table_name.lower()
     response = supabase.table(table_name).select("*").execute()
     data = response.data
@@ -14,10 +25,25 @@ def load_table(table_name: str) -> pd.DataFrame:
 
 
 def load_all_data() -> pd.DataFrame:
-    """
-    Load all main tables from Supabase and combine them into a unified dataframe.
-    Returns a dataframe with a standard column 'cryptocurrency_name'.
-    """
+    '''
+    Load all main tables from Supabase and merge them into a unified DataFrame.
+
+    Parameters:
+        - None
+
+    Returns:
+        - unified_df: pandas DataFrame containing the combined cryptocurrency
+          data from the Price, Market_capitalization, Transaction_volume_24h,
+          Value_change_24h and Cryptocurrencies tables, with the following
+          main columns:
+            - cryptocurrency_id: unique identifier of the cryptocurrency
+            - date: timestamp of the recorded data
+            - price_usd: cryptocurrency price in USD
+            - market_cap: cryptocurrency market capitalization
+            - volume: 24-hour transaction volume
+            - change: 24-hour percentage price change
+            - cryptocurrency_name: name of the cryptocurrency
+    '''
     # Load tables
     price = load_table("price")
     market = load_table("market_capitalization")

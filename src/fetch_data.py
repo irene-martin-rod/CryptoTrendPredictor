@@ -15,15 +15,25 @@ POSTGRES_URL = os.getenv("POSTGRES_URL")
 # API endpoint for CoinGecko
 API_URL = "https://api.coingecko.com/api/v3/simple/price"
 
-def save_to_db(data):
+def save_to_db(data: dict | None) -> None:
     '''
-    Saves cryptocurrency data into the PostgreSQL database.
+    Save cryptocurrency market data into the PostgreSQL database.
 
     Parameters:
-    - data (dict): Cryptocurrency data with keys:
-      date, crypto, price_usd, market_cap, volume_24h, change_24h
-    '''
+        - data: dictionary containing the cryptocurrency information with
+          the following keys:
+            - date: timestamp of the recorded data
+            - crypto: name of the cryptocurrency
+            - price_usd: cryptocurrency price in USD
+            - market_cap: cryptocurrency market capitalization
+            - volume_24h: 24-hour transaction volume
+            - change_24h: 24-hour percentage price change
 
+    Returns:
+        - None: inserts the cryptocurrency data into the corresponding
+          database tables. If data is None, no operation is performed.
+          Errors during database operations are printed to the console
+    '''
     if data is None:
         return
     
@@ -71,19 +81,24 @@ def save_to_db(data):
         if conn:
             conn.close()
 
-def get_data_api(crypto):
+def get_data_api(crypto: str) -> dict | None:
     '''
-    Fetches cryptocurrency data from the CoinGecko API.
+    Fetch cryptocurrency market data from the CoinGecko API.
 
     Parameters:
-    - crypto (str): The cryptocurrency name.
+        - crypto: name or identifier of the cryptocurrency to retrieve
 
     Returns:
-    - dict: Dictionary containing cryptocurrency data with keys:
-      date, crypto, price_usd, market_cap, volume_24h, change_24h
-      Returns None if an error occurs.
+        - data: dictionary containing the cryptocurrency information with
+          the following keys:
+            - date: timestamp of the data retrieval
+            - crypto: name of the cryptocurrency
+            - price_usd: cryptocurrency price in USD
+            - market_cap: cryptocurrency market capitalization in USD
+            - volume_24h: 24-hour transaction volume in USD
+            - change_24h: 24-hour percentage price change
+          Returns None if the API request fails
     '''
-
     params = {
         'ids': crypto,
         'vs_currencies': 'usd',
@@ -109,9 +124,17 @@ def get_data_api(crypto):
         print(f"Error fetching data for {crypto}: {e}")
         return None
 
-def fetch_and_store_data():
+def fetch_and_store_data()-> None:
     '''
-    Fetches data for all cryptocurrencies listed in config.py and stores it in the DB.
+    Fetch cryptocurrency market data for all configured cryptocurrencies
+    and store the results in the database.
+
+    Parameters:
+        - None
+
+    Returns:
+        - None: retrieves data for each cryptocurrency listed in
+          CRYPTOCURRENCIES and saves successfully fetched data to the database
     '''
     for crypto in CRYPTOCURRENCIES:
         print(f"Fetching data for {crypto}...")

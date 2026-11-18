@@ -7,29 +7,22 @@ from .clean import eliminate_columns, fill_dates
 from .clean_prices import clean_crypto_timeseries
 from .export import export_csv
 
-def run_preprocess(df: pd.DataFrame, config_path: str = "config/preprocess.yaml") -> None:
-
+def run_preprocess(df: pd.DataFrame,
+                  config_path: str = "config/preprocess.yaml") -> None:
     '''
-    End-to-end preprocessing pipeline for cryptocurrency time series data.
-
-    This function:
-    1. Splits the data by cryptocurrency.
-    2. Cleans each cryptocurrency time series:
-       - Imputes missing prices using next-day price and percentage change.
-       - Forward-fills non-target variables.
-       - Removes invalid or incomplete target values.
-    3. Optionally fills missing calendar dates.
-    4. Exports one cleaned CSV file per cryptocurrency.
+    Execute the complete preprocessing pipeline for cryptocurrency time series data.
 
     Parameters:
-        - df: a dataframe with values of cryptocurrencies
-        - config_path : str. Path to the YAML configuration file controlling input/output paths
-        and preprocessing options.
+        - df: pandas DataFrame containing raw data for multiple cryptocurrencies
+        - config_path: path to the YAML configuration file specifying the
+          output folder and preprocessing options (default="config/preprocess.yaml")
 
     Returns:
-        - None. This function does not return any object. Cleaned datasets are written to disk as CSV files
+        - None: splits the dataset by cryptocurrency, cleans each time series,
+          optionally fills missing calendar dates, removes unnecessary columns
+          and exports one cleaned CSV file per cryptocurrency to the configured
+          output folder
     '''
-
     # Load configuration
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)

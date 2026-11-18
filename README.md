@@ -25,7 +25,7 @@ Predicting cryptocurrency price and trend dynamics using time-series analysis an
 │   │
 │   └── raw/
 │       ├── crypto_data.db             # Local SQLite database
-│       └── db_04022026.csv           # Raw dataset
+│       └── db_04022026.csv            # Raw dataset
 │
 ├── notebooks/
 │   ├── 1-obtain_data.ipynb            # Data acquisition and preprocessing
@@ -33,7 +33,7 @@ Predicting cryptocurrency price and trend dynamics using time-series analysis an
 │
 ├── src/
 │   ├── analysis/
-│   │   └── eda.py                    # EDA and time-series analysis functions
+│   │   └── eda.py                     # EDA and time-series analysis functions
 │   │
 │   └── preprocess/
 │       ├── __init__.py
