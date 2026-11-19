@@ -42,7 +42,7 @@ Predicting cryptocurrency price and trend dynamics using time-series analysis an
 │   ├── load_supabase_api.py           # Data loading from Supabase
 │   ├── main.py                        # Main automated pipeline
 │   ├── migrate_db.py                  # SQLite → PostgreSQL migration
-│   └── supabase_client.py              # Supabase/PostgreSQL connection
+│   └── supabase_client.py             # Supabase/PostgreSQL connection
 ```
 
 # Overview
@@ -256,14 +256,13 @@ This analysis showed an important difference between cryptocurrencies.
 
 For example, the 7-day slope distributions have substantially different scales:
 
-```text
-Bitcoin       P05 ≈ -0.0123    P95 ≈  0.0164
-Ethereum      P05 ≈ -0.0289    P95 ≈  0.0329
-Binance Coin  P05 ≈ -0.0143    P95 ≈  0.0159
-Ripple        P05 ≈ -0.0147    P95 ≈  0.0233
-Tether        P05 ≈ -0.000075  P95 ≈  0.000107
-USD Coin      P05 ≈ -0.000019  P95 ≈  0.000018
-```
+| **Bitcoin** | --- | P05 ≈ -0.0123 | P95 ≈  0.0164 |
+| **Ethereum** | --- | P05 ≈ -0.0289 | P95 ≈  0.0329 |
+| **Binance Coin** | --- | P05 ≈ -0.0143 | P95 ≈  0.0159 |
+| **Ripple** | --- | P05 ≈ -0.0147 | P95 ≈  0.0233 |
+| **Tether** | --- | P05 ≈ -0.000075 |  P95 ≈  0.000107 |
+| **USD Coin** | --- | P05 ≈ -0.000019 | P95 ≈  0.000018 |
+
 
 This shows that fixed absolute thresholds for slope would not be appropriate across all cryptocurrencies.
 
@@ -409,16 +408,16 @@ future_price = price_usd.shift(-h)
 ```
 
 The corresponding future return is calculated as:
-```text
-\[
+
+$$
 R_{d,h} = \frac{P_{d+h}}{P_d} - 1
-\]
+$$
 
 where:
-- \(P_d\) is the price on the current observation date.
-- \(P_{d+h}\) is the price after \(h\) days.
-- \(R_{d,h}\) is the future return expressed as a decimal fraction.
-```
+
+- $P_d$ is the price on the current observation date.
+- $P_{d+h}$ is the price after $h$ days.
+- $R_{d,h}$ is the future return expressed as a decimal fraction.
 
 For example, a return of 0.05 represents a 5% increase, while -0.05 represents a 5% decrease.
 
