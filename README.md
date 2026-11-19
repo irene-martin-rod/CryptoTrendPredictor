@@ -256,12 +256,14 @@ This analysis showed an important difference between cryptocurrencies.
 
 For example, the 7-day slope distributions have substantially different scales:
 
-| **Bitcoin** | P05 ≈ -0.0123 | P95 ≈  0.0164 |
-| **Ethereum** | P05 ≈ -0.0289 | P95 ≈  0.0329 |
-| **Binance Coin** | P05 ≈ -0.0143 | P95 ≈  0.0159 |
-| **Ripple** | P05 ≈ -0.0147 | P95 ≈  0.0233 |
-| **Tether** | P05 ≈ -0.000075 |  P95 ≈  0.000107 |
-| **USD Coin** | P05 ≈ -0.000019 | P95 ≈  0.000018 |
+```text
+Bitcoin       P05 ≈ -0.0123    P95 ≈  0.0164
+Ethereum      P05 ≈ -0.0289    P95 ≈  0.0329
+Binance Coin  P05 ≈ -0.0143    P95 ≈  0.0159
+Ripple        P05 ≈ -0.0147    P95 ≈  0.0233
+Tether        P05 ≈ -0.000075  P95 ≈  0.000107
+USD Coin      P05 ≈ -0.000019  P95 ≈  0.000018
+```
 
 
 This shows that fixed absolute thresholds for slope would not be appropriate across all cryptocurrencies.
