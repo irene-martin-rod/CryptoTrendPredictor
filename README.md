@@ -19,6 +19,13 @@ Predicting cryptocurrency price and trend dynamics using time-series analysis an
 │   │   ├── ripple.csv
 │   │   ├── tether.csv
 │   │   └── usd-coin.csv
+|   ├── labered/
+│   │   ├── binancecoin.csv
+│   │   ├── bitcoin.csv
+│   │   ├── ethereum.csv
+│   │   ├── ripple.csv
+│   │   ├── tether.csv
+│   │   └── usd-coin.csv
 │   └── raw/
 │       ├── crypto_data.db             # Local SQLite database
 │       └── db_04022026.csv            # Raw dataset
